@@ -1,0 +1,5 @@
+####
+post http://127.0.0.1:5000/games
+
+####
+get http://127.0.0.1:5000/games/6f5b0795-eeac-4aff-99ca-175039c222ac
