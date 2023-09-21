@@ -1,11 +1,15 @@
 from mesa import Agent
 from Incinerator import Incinerator
 from GarbageCell import GarbageCell
+from pathfinding.core.diagonal_movement import DiagonalMovement
+from pathfinding.core.grid import Grid
+from pathfinding.finder.a_star import AStarFinder
 
 
 class RobotCenter(Agent):
     def __init__(self, model, grid_size, c_coords, section, pos, incinerator):
         super().__init__(model.next_id(), model)
+        self.path = []
         self.model = model
         self.loaded = (
             False  # Variable para identificar si el robot está cargando basura
@@ -38,6 +42,15 @@ class RobotCenter(Agent):
             self.c_coordsLimit = c_coords[2]
 
         self.section = section
+
+    def findPath(self):
+        grid = Grid(matrix=self.model.matrix)
+        start = grid.node(self.pos[0], self.pos[1])
+        end = grid.node(self.incineratorPos[0], self.incineratorPos[1])
+        finder = AStarFinder(diagonal_movement=DiagonalMovement.never)
+        self.path, runs = finder.find_path(start, end, grid)
+        print(self.path)
+    
 
     # Regresa a la posición de búsqueda
     # Regresa una lista next_move
@@ -79,21 +92,10 @@ class RobotCenter(Agent):
     # Entrega de basura en el centro
     # Regresa una lista next_move
     def deliver(self):
-        # Alinear en x
-        next_move = list(self.pos)
-        if self.pos[0] != self.incineratorPos[0]:
-            if self.pos[0] < self.incineratorPos[0]:
-                next_move[0] += 1
-            else:
-                next_move[0] -= 1
-        else:
-            self.pos
-        # Alinear en y
-        if self.pos[1] != self.incineratorPos[1]:
-            if self.pos[1] < self.incineratorPos[1]:
-                next_move[1] += 1
-            else:
-                next_move[1] -= 1
+        if len(self.path) == 0:
+            return self.pos
+        next_move = self.path[0]
+        self.path.pop(0)
         if tuple(next_move) == self.incineratorPos:
             self.delivering = False
             return list(self.pos)
@@ -111,6 +113,7 @@ class RobotCenter(Agent):
             print("Se encontró basura")
             self.currGarbage.pickUp()
             self.loaded = True
+            self.findPath()
             self.delivering = True
             self.lastPos = self.pos
         next_move = list(self.pos)  # almacenaje del siguiente movimiento del robot

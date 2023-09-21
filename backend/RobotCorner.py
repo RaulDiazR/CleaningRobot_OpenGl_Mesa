@@ -1,6 +1,9 @@
 from mesa import Agent
 from Incinerator import Incinerator
 from GarbageCell import GarbageCell
+from pathfinding.core.diagonal_movement import DiagonalMovement
+from pathfinding.core.grid import Grid
+from pathfinding.finder.a_star import AStarFinder
 
 
 class RobotCorner(Agent):
@@ -25,7 +28,7 @@ class RobotCorner(Agent):
 
         # limits representa los 4 límites del área de dicho robot, hay 2 conjuntos de límites, x1,y1 & x2,y2
         # por cada sección se definen sus límites de malla original y malla central
-        xtraL = 1  # an extra limit for the boundaries of the robots, so no trash is left behind
+        xtraL = 3  # an extra limit for the boundaries of the robots, so no trash is left behind
         if section == 0:
             self.limits = (grid_size // 2 + xtraL, grid_size // 2 - 1, 0, 0)
             self.c_coords = c_coords[0]
@@ -55,6 +58,17 @@ class RobotCorner(Agent):
         # 3: inferior derecha
         self.section = section
 
+    def findPath(self):
+        grid = Grid(matrix=self.model.matrix)
+        self.model.matrix[self.pos[0]][self.pos[1]] = 0
+        start = grid.node(self.pos[0], self.pos[1])
+        end = grid.node(self.c_coords[0], self.c_coords[1])
+        print(start, end)
+        finder = AStarFinder()
+        self.path, runs = finder.find_path(start, end, grid)
+        print(self.c_coords[0], self.c_coords[1])
+        print("path", self.path)
+        print(runs)
 
     # Regresa a la posición de búsqueda
     # Regresa una lista next_move
@@ -106,21 +120,10 @@ class RobotCorner(Agent):
     # Entrega de basura en el centro
     # Regresa una lista next_move
     def deliver(self):
-        # Alinear en x
-        next_move = list(self.pos)
-        if self.pos[0] != self.c_coords[0]:
-            if self.pos[0] < self.c_coords[0]:
-                next_move[0] += 1
-            else:
-                next_move[0] -= 1
-        else:
-            self.pos
-        # Alinear en y
-        if self.pos[1] != self.c_coords[1]:
-            if self.pos[1] < self.c_coords[1]:
-                next_move[1] += 1
-            else:
-                next_move[1] -= 1
+        if len(self.path) == 0:
+            return self.pos
+        next_move = self.path[0]
+        self.path.pop(0)
         if tuple(next_move) == self.c_coords:
             self.delivering = False
             self.dropDirection = 1 if self.section == 0 or self.section == 3 else -1
@@ -137,9 +140,9 @@ class RobotCorner(Agent):
                 self.currGarbage = agent
         # Se verifica si el robot encontró basura
         if self.currGarbage:
-            print("Se encontró basura")
             self.currGarbage.pickUp()
             self.loaded = True
+            self.findPath()
             self.delivering = True
             self.lastPos = self.pos
             return self.pos
@@ -168,7 +171,7 @@ class RobotCorner(Agent):
                 return self.pos
 
         # Se posicionan incineradoes como ejemplo visual del recorrido de los robots
-        #self.model.grid.place_agent(Incinerator(self.model), self.pos)
+        # self.model.grid.place_agent(Incinerator(self.model), self.pos)
 
         # Se escoge el límite del eje Y a utilizar del atributo limits conforme a la sección a la que pertenezca
         if sect == 1 or sect == 2:
@@ -202,5 +205,5 @@ class RobotCorner(Agent):
             next_move = self.ret()
         else:
             next_move = self.search()
-        print("Robot", next_move, self.section)
+        # print("Robot", next_move, self.section)
         self.model.grid.move_agent(self, tuple(next_move))
