@@ -15,6 +15,8 @@ from mesa.visualization.modules import ChartModule
 class Room(Model):
     def __init__(self, density=0.01, grid51=False, centerPercentage=0.21, stepLimit = 2000):
         super().__init__()
+        self.matrix = [[0 for _ in range(21)] for _ in range(21)]
+        self.matrix.reverse()
         self.robots = 6
         self.agentSteps = 0
         self.schedule = RandomActivation(self)
@@ -36,7 +38,9 @@ class Room(Model):
                 garbageCell = GarbageCell(self)
                 self.grid.place_agent(garbageCell, (x, y))
                 self.schedule.add(garbageCell)
+                self.matrix[y][x] = 1
 
+        #print(self.matrix)
         # Se calculan las coordenadas de las esquinas de la malla central para su uso posterior
         c_coords = [
             (grid_size // 2 - center_radius, grid_size // 2 - center_radius),  # I.I
