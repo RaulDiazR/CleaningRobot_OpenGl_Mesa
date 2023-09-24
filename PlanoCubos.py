@@ -54,6 +54,7 @@ DimBoard = 210//2
 
 centerCoords = []
 cornerCoords = []
+garbageCoords = []
 
 # Se guardan las posiciones iniciales de los robots
 for r in McenterRobots:
@@ -63,6 +64,10 @@ for r in McenterRobots:
 for r in McornerRobots:
     x,z = r['x']*10 - DimBoard, r['z']*10 - DimBoard
     cornerCoords.append((x,z))
+    
+for r in garbageCells:
+    x,z = r['x']*10 - DimBoard, r['z']*10 - DimBoard
+    garbageCoords.append((x,z))
 
 # Arreglos para almacenar los robots
 rCorner = []
@@ -144,7 +149,7 @@ def Init():
         
         
     for i in range(nbasuras):
-        basuras.append(Basura(DimBoard,1,textures,3, (garbageCells[i]['x']*10 - DimBoard, garbageCells[i]['z']*10 - DimBoard)))
+        basuras.append(Basura(DimBoard,1,textures,3, garbageCoords[i]))
         
 def planoText():
     # activate textures
@@ -252,10 +257,31 @@ def display():
     
     Axis()
     
+    for i in range(nbasuras):
+        basuras[i].draw()
+        basuras[i].update(garbageCells[i]['x']*10 - DimBoard, garbageCells[i]['z']*10 - DimBoard)
+    
     #Se dibujan basuras
-    for obj in basuras:
-        obj.draw()
-        #obj.update()    
+    #for obj in basuras:
+    #    obj.draw()
+        #obj.update()  
+    
+    #Detección de colisiones
+    for c in rCorner:
+        for b in basuras:
+            distance = math.sqrt(math.pow((b.Position[0] - c.Position[0]), 2) + math.pow((b.Position[2] - c.Position[2]), 2))
+            if distance <= c.radiusCol:
+                if (b.alive) and (b.inCenter == False):
+                    b.alive = False
+                #print("Colision detectada")
+                
+    for c in rCenter:
+        for b in basuras:
+            distance = math.sqrt(math.pow((b.Position[0] - c.Position[0]), 2) + math.pow((b.Position[2] - c.Position[2]), 2))
+            if distance <= c.radiusCol:
+                if b.alive:
+                    b.alive = False
+                #print("Colision detectada")  
     
     #Se dibuja el plano gris
     planoText()
@@ -268,9 +294,7 @@ def display():
     glEnd()
     
     #drawWalls()
-    
-    
-    
+       
 def lookAt():
     glLoadIdentity()
     rad = theta * math.pi / 180
@@ -305,5 +329,5 @@ while not done:
 
     display()
     pygame.display.flip()
-    pygame.time.wait(500)
+    pygame.time.wait(50)
 pygame.quit()

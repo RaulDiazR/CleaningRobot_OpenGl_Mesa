@@ -41,98 +41,101 @@ class Basura:
 
         #Index de la textura a utilizar
         self.txtIndex = txtIndex
+        
+        self.inCenter = False
+        self.alive = True
 
-    def update(self):
+    def update(self, x, z):
         # Se debe de calcular la posible nueva posicion del cubo a partir de su
         # posicion acutual (Position) y el vector de direccion (Direction)
         # ...
-        newX = self.Position[0] + self.Direction[0]
-        newZ = self.Position[2] + self.Direction[2]
-        if newX < -self.dim or newX > self.dim:
-            self.Direction[0] *= -1
-        else:
-            self.Position[0] = newX
-        if newZ < -self.dim or newZ > self.dim:
-            self.Direction[2] *= -1
-        else:
-            self.Position[2] = newZ
+        newX = x
+        newZ = z
+        
+        if (self.Position[0] != newX) or (self.Position[2] != newZ):    
+            self.alive = True
+            self.inCenter = True
+            
+        self.Position[0] = newX
+        self.Position[2] = newZ
 
         # Se debe verificar que el objeto cubo, con su nueva posible direccion
         # no se salga del plano actual (DimBoard)
         # ...
 
     def draw(self):
-        glPushMatrix()
-        glTranslatef(self.Position[0], self.Position[1], self.Position[2])
-        glScaled(3, 3, 3)
-        glColor3f(1.0, 1.0, 1.0)
+        if self.alive:
+            glPushMatrix()
+            glTranslatef(self.Position[0], self.Position[1], self.Position[2])
+            glScaled(3, 3, 3)
+            glColor3f(1.0, 1.0, 1.0)
         
-        glEnable(GL_TEXTURE_2D)
-        glBindTexture(GL_TEXTURE_2D, self.textures[self.txtIndex])
+            glEnable(GL_TEXTURE_2D)
+            glBindTexture(GL_TEXTURE_2D, self.textures[self.txtIndex])
         
-        glBegin(GL_QUADS)
+            glBegin(GL_QUADS)
         
-        # Front face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(1, 1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(-1, 1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(-1, -1, 1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(1, -1, 1)
-        
-        # Back face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, 1, -1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, 1, -1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, -1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, -1, -1)
-        
-        # Left face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, 1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(-1, 1, -1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(-1, -1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, -1, 1)
-        
-        # Right face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(1, 1, -1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, 1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, -1, 1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(1, -1, -1)
-        
-        # Top face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, 1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, 1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, 1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, 1, -1)
-        
-        # Bottom face
-        glTexCoord2f(0.0, 0.0)
-        glVertex3d(-1, -1, 1)
-        glTexCoord2f(1.0, 0.0)
-        glVertex3d(1, -1, 1)
-        glTexCoord2f(1.0, 1.0)
-        glVertex3d(1, -1, -1)
-        glTexCoord2f(0.0, 1.0)
-        glVertex3d(-1, -1, -1)
-        
-        glEnd()
-        glDisable(GL_TEXTURE_2D)
-        
-        glPopMatrix()
+            # Front face
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(1, 1, 1)
+            glTexCoord2f(1.0, 0.0)
+            glVertex3d(-1, 1, 1)
+            glTexCoord2f(1.0, 1.0)
+            glVertex3d(-1, -1, 1)
+            glTexCoord2f(0.0, 1.0)
+            glVertex3d(1, -1, 1)
+            
+            # Back face
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(-1, 1, -1)
+            glTexCoord2f(1.0, 0.0)
+            glVertex3d(1, 1, -1)
+            glTexCoord2f(1.0, 1.0)
+            glVertex3d(1, -1, -1)
+            glTexCoord2f(0.0, 1.0)
+            glVertex3d(-1, -1, -1)
+            
+            # Left face
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(-1, 1, 1)
+            glTexCoord2f(1.0, 0.0)
+            glVertex3d(-1, 1, -1)
+            glTexCoord2f(1.0, 1.0)
+            glVertex3d(-1, -1, -1)
+            glTexCoord2f(0.0, 1.0)
+            glVertex3d(-1, -1, 1)
+            
+            # Right face
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(1, 1, -1)
+            glTexCoord2f(1.0, 0.0)
+            glVertex3d(1, 1, 1)
+            glTexCoord2f(1.0, 1.0)
+            glVertex3d(1, -1, 1)
+            glTexCoord2f(0.0, 1.0)
+            glVertex3d(1, -1, -1)
+            
+            # Top face
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(-1, 1, 1)
+            glTexCoord2f(1.0, 0.0)
+            glVertex3d(1, 1, 1)
+            glTexCoord2f(1.0, 1.0)
+            glVertex3d(1, 1, -1)
+            glTexCoord2f(0.0, 1.0)
+            glVertex3d(-1, 1, -1)
+            
+            # Bottom face
+            glTexCoord2f(0.0, 0.0)
+            glVertex3d(-1, -1, 1)
+            glTexCoord2f(1.0, 0.0)
+            glVertex3d(1, -1, 1)
+            glTexCoord2f(1.0, 1.0)
+            glVertex3d(1, -1, -1)
+            glTexCoord2f(0.0, 1.0)
+            glVertex3d(-1, -1, -1)
+            
+            glEnd()
+            glDisable(GL_TEXTURE_2D)
+            
+            glPopMatrix()

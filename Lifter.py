@@ -23,6 +23,8 @@ class Lifter:
         # Inicializar las coordenadas (x,y,z) del cubo en el tablero
         # almacenandolas en el vector Position
 
+        self.radiusCol = 1
+
         # Se inicializa un vector de direccion aleatorio
         dirX = random.randint(-10, 10) or 1
         dirZ = random.randint(-1, 1) or 1
