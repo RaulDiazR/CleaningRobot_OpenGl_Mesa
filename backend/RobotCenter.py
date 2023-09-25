@@ -47,7 +47,7 @@ class RobotCenter(Agent):
         grid = Grid(matrix=self.model.matrix)
         start = grid.node(self.pos[0], self.pos[1])
         end = grid.node(self.incineratorPos[0], self.incineratorPos[1])
-        finder = AStarFinder(diagonal_movement=DiagonalMovement.never)
+        finder = AStarFinder()
         self.path, runs = finder.find_path(start, end, grid)
         print(self.path)
     
